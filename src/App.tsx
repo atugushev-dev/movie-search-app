@@ -9,6 +9,10 @@ import {
   Select,
   MenuItem,
   InputLabel,
+  Card,
+  CardMedia,
+  CardContent,
+  Grid,
 } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 
@@ -18,13 +22,14 @@ interface Movie {
   Genre: string;
   Year: string;
   imdbRating: string;
+  Poster: string;
 }
 
 const App: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [movies, setMovies] = useState<Movie[]>([]);
   const [sort, setSort] = useState<string>('');
-  const resultCount = 5;
+  const resultCount = 6;
 
   const handleSearch = async () => {
     const baseUrl = 'https://www.omdbapi.com/';
@@ -133,19 +138,31 @@ const App: React.FC = () => {
                 </Select>
               </Box>
             </Box>
-            {movies.map((movie) => (
-              <Box key={movie.imdbID} sx={{ marginBottom: 1 }}>
-                <Link
-                  href={`https://www.imdb.com/title/${movie.imdbID}/`}
-                  target="_blank"
-                >
-                  {movie.Title}
-                </Link>
-                <Typography variant="body2" component="span" sx={{ marginLeft: 1 }}>
-                  ({movie.Year}) - {movie.Genre} - IMDb Rating: {movie.imdbRating}
-                </Typography>
-              </Box>
-            ))}
+            <Grid container spacing={2}>
+              {movies.map((movie) => (
+                <Grid item xs={12} sm={6} md={4} key={movie.imdbID}>
+                  <Card sx={{ minWidth: 200 }}>
+                    <CardMedia
+                      component="img"
+                      height="200"
+                      image={movie.Poster}
+                      alt={movie.Title}
+                    />
+                    <CardContent>
+                      <Link
+                        href={`https://www.imdb.com/title/${movie.imdbID}/`}
+                        target="_blank"
+                      >
+                        {movie.Title}
+                      </Link>
+                      <Typography variant="body2" component="div">
+                        ({movie.Year}) - {movie.Genre} - IMDb Rating: {movie.imdbRating}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
           </Box>
         )}
       </Box>
