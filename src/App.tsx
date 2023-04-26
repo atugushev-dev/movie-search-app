@@ -18,6 +18,7 @@ const App: React.FC = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [sort, setSort] = useState<string>('');
   const [favorites, setFavorites] = useState<{ [key: string]: boolean }>({});
+  const [searchPerformed, setSearchPerformed] = useState<boolean>(false);
   const resultCount = 6;
 
   useEffect(() => {
@@ -48,6 +49,12 @@ const App: React.FC = () => {
     const response = await fetch(searchUrl);
     const data = await response.json();
 
+    if (!data.Search || data.Search.length === 0) {
+      setMovies([]);
+      setSearchPerformed(true);
+      return;
+    }
+
     const topMovies = data.Search.slice(0, resultCount);
     const detailedMoviesPromises = topMovies.map(async (movie: any) => {
       const detailsUrl = `${baseUrl}?apikey=${apiKey}&i=${movie.imdbID}`;
@@ -59,24 +66,25 @@ const App: React.FC = () => {
     const detailedMovies = await Promise.all(detailedMoviesPromises);
     const sortedMovies = sortMovies(detailedMovies, sort);
     setMovies(sortedMovies);
+    setSearchPerformed(true);
   };
 
-const sortMovies = (movies: Movie[], sortValue: string) => {
-  return [...movies].sort((a, b) => {
-    switch (sortValue) {
-      case 'yearAsc':
-        return parseInt(a.Year) - parseInt(b.Year);
-      case 'yearDesc':
-        return parseInt(b.Year) - parseInt(a.Year);
-      case 'ratingAsc':
-        return parseFloat(a.imdbRating) - parseFloat(b.imdbRating);
-      case 'ratingDesc':
-        return parseFloat(b.imdbRating) - parseFloat(a.imdbRating);
-      default:
-        return 0;
-    }
-  });
-};
+  const sortMovies = (movies: Movie[], sortValue: string) => {
+    return [...movies].sort((a, b) => {
+      switch (sortValue) {
+        case 'yearAsc':
+          return parseInt(a.Year) - parseInt(b.Year);
+        case 'yearDesc':
+          return parseInt(b.Year) - parseInt(a.Year);
+        case 'ratingAsc':
+          return parseFloat(a.imdbRating) - parseFloat(b.imdbRating);
+        case 'ratingDesc':
+          return parseFloat(b.imdbRating) - parseFloat(a.imdbRating);
+        default:
+          return 0;
+      }
+    });
+  };
 
   const handleSearch = () => {
     window.history.pushState({}, '', `?query=${search}`);
@@ -118,7 +126,11 @@ const sortMovies = (movies: Movie[], sortValue: string) => {
           onKeyPress={handleKeyPress}
           onButtonClick={handleSearch}
         />
-        {movies.length > 0 && (
+        {searchPerformed && movies.length === 0 ? (
+          <Typography variant="h6" component="div" sx={{ marginTop: 2 }}>
+            No movies found.
+          </Typography>
+        ) : (
           <Box>
             <Typography variant="h6" component="div" sx={{ marginTop: 2 }}>
               Search Results:
