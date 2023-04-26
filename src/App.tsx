@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -13,8 +13,11 @@ import {
   CardMedia,
   CardContent,
   Grid,
+  IconButton,
 } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 
 interface Movie {
   Title: string;
@@ -29,7 +32,15 @@ const App: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [movies, setMovies] = useState<Movie[]>([]);
   const [sort, setSort] = useState<string>('');
-  const resultCount = 6;
+  const [favorites, setFavorites] = useState<{ [key: string]: boolean }>({});
+  const resultCount = 5;
+
+  useEffect(() => {
+    const storedFavorites = localStorage.getItem('favorites');
+    if (storedFavorites) {
+      setFavorites(JSON.parse(storedFavorites));
+    }
+  }, []);
 
   const handleSearch = async () => {
     const baseUrl = 'https://www.omdbapi.com/';
@@ -76,6 +87,12 @@ const App: React.FC = () => {
     });
 
     setMovies(sortedMovies);
+  };
+
+  const handleToggleFavorite = (movieId: string) => {
+    const updatedFavorites = { ...favorites, [movieId]: !favorites[movieId] };
+    setFavorites(updatedFavorites);
+    localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
   };
 
   return (
@@ -149,12 +166,30 @@ const App: React.FC = () => {
                       alt={movie.Title}
                     />
                     <CardContent>
-                      <Link
-                        href={`https://www.imdb.com/title/${movie.imdbID}/`}
-                        target="_blank"
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
                       >
-                        {movie.Title}
-                      </Link>
+                        <Link
+                          href={`https://www.imdb.com/title/${movie.imdbID}/`}
+                          target="_blank"
+                        >
+                          {movie.Title}
+                        </Link>
+                        <IconButton
+                          onClick={() => handleToggleFavorite(movie.imdbID)}
+                          color="primary"
+                        >
+                          {favorites[movie.imdbID] ? (
+                            <FavoriteIcon />
+                          ) : (
+                            <FavoriteBorderIcon />
+                          )}
+                        </IconButton>
+                      </Box>
                       <Typography variant="body2" component="div">
                         ({movie.Year}) - {movie.Genre} - IMDb Rating: {movie.imdbRating}
                       </Typography>
