@@ -17,7 +17,6 @@ const SortBy: React.FC<SortByProps> = ({ sort, onSortChange }) => (
       }
       sx={{ marginLeft: 1 }}
     >
-      <MenuItem value="">None</MenuItem>
       <MenuItem value="yearAsc">Year (Ascending)</MenuItem>
       <MenuItem value="yearDesc">Year (Descending)</MenuItem>
       <MenuItem value="ratingAsc">Rating (Ascending)</MenuItem>

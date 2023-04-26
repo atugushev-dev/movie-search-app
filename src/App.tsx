@@ -16,7 +16,7 @@ export interface Movie {
 const App: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [movies, setMovies] = useState<Movie[]>([]);
-  const [sort, setSort] = useState<string>('');
+  const [sort, setSort] = useState<string>('ratingDesc');
   const [favorites, setFavorites] = useState<{ [key: string]: boolean }>({});
   const [searchPerformed, setSearchPerformed] = useState<boolean>(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
