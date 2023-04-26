@@ -6,7 +6,11 @@ import {
   TextField,
   Typography,
   Link,
+  Select,
+  MenuItem,
+  InputLabel,
 } from '@mui/material';
+import { SelectChangeEvent } from '@mui/material/Select';
 
 interface Movie {
   Title: string;
@@ -19,6 +23,7 @@ interface Movie {
 const App: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [sort, setSort] = useState<string>('');
 
   const handleSearch = async () => {
     const baseUrl = 'https://www.omdbapi.com/';
@@ -44,6 +49,27 @@ const App: React.FC = () => {
     if (event.key === 'Enter') {
       handleSearch();
     }
+  };
+
+  const handleSort = (event: SelectChangeEvent<string>) => {
+    setSort(event.target.value as string);
+
+    const sortedMovies = [...movies].sort((a, b) => {
+      switch (event.target.value) {
+        case 'yearAsc':
+          return parseInt(a.Year) - parseInt(b.Year);
+        case 'yearDesc':
+          return parseInt(b.Year) - parseInt(a.Year);
+        case 'ratingAsc':
+          return parseFloat(a.imdbRating) - parseFloat(b.imdbRating);
+        case 'ratingDesc':
+          return parseFloat(b.imdbRating) - parseFloat(a.imdbRating);
+        default:
+          return 0;
+      }
+    });
+
+    setMovies(sortedMovies);
   };
 
   return (
@@ -82,6 +108,21 @@ const App: React.FC = () => {
             <Typography variant="h6" component="div" sx={{ marginTop: 2 }}>
               Search Results:
             </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+              <InputLabel id="sort-label">Sort by:</InputLabel>
+              <Select
+                labelId="sort-label"
+                value={sort}
+                onChange={handleSort}
+                sx={{ marginLeft: 1 }}
+              >
+                <MenuItem value="">None</MenuItem>
+                <MenuItem value="yearAsc">Year (Ascending)</MenuItem>
+                <MenuItem value="yearDesc">Year (Descending)</MenuItem>
+                <MenuItem value="ratingAsc">Rating (Ascending)</MenuItem>
+                <MenuItem value="ratingDesc">Rating (Descending)</MenuItem>
+              </Select>
+            </Box>
             {movies.map((movie) => (
               <Box key={movie.imdbID} sx={{ marginBottom: 1 }}>
                 <Link
