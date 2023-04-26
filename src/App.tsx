@@ -117,6 +117,10 @@ const App: React.FC = () => {
     setMovies([]);
     setSearchPerformed(false);
     searchInputRef.current?.focus();
+
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.delete('query');
+    window.history.replaceState(null, '', currentUrl.toString());
   }
 
   return (
