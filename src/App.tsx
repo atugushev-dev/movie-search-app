@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Container, Typography } from '@mui/material';
 import MovieSearch from './MovieSearch';
 import SortBy from './SortBy';
@@ -19,6 +19,7 @@ const App: React.FC = () => {
   const [sort, setSort] = useState<string>('');
   const [favorites, setFavorites] = useState<{ [key: string]: boolean }>({});
   const [searchPerformed, setSearchPerformed] = useState<boolean>(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const resultCount = 6;
 
   useEffect(() => {
@@ -110,6 +111,13 @@ const App: React.FC = () => {
     localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
   };
 
+  const handleClear = () => {
+    setSearch('');
+    setMovies([]);
+    setSearchPerformed(false);
+    searchInputRef.current?.focus();
+  }
+
   return (
     <Container maxWidth="lg">
       <Box
@@ -125,32 +133,36 @@ const App: React.FC = () => {
           onSearchChange={setSearch}
           onKeyPress={handleKeyPress}
           onButtonClick={handleSearch}
+          onClear={handleClear}
+          ref={searchInputRef}
         />
-        {searchPerformed && movies.length === 0 ? (
-          <Typography variant="h6" component="div" sx={{ marginTop: 2 }}>
-            No movies found.
-          </Typography>
-        ) : (
-          <Box>
+        {searchPerformed && (
+          movies.length === 0 ? (
             <Typography variant="h6" component="div" sx={{ marginTop: 2 }}>
-              Search Results:
+              No movies found.
             </Typography>
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'flex-start',
-                alignItems: 'center',
-                marginBottom: 2,
-              }}
-            >
-              <SortBy sort={sort} onSortChange={handleSort} />
+          ) : (
+            <Box>
+              <Typography variant="h6" component="div" sx={{ marginTop: 2 }}>
+                Search Results:
+              </Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'flex-start',
+                  alignItems: 'center',
+                  marginBottom: 2,
+                }}
+              >
+                <SortBy sort={sort} onSortChange={handleSort} />
+              </Box>
+              <MovieGrid
+                movies={movies}
+                favorites={favorites}
+                onToggleFavorite={handleToggleFavorite}
+              />
             </Box>
-            <MovieGrid
-              movies={movies}
-              favorites={favorites}
-              onToggleFavorite={handleToggleFavorite}
-            />
-          </Box>
+          )
         )}
       </Box>
     </Container>
