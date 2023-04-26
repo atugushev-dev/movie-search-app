@@ -11,6 +11,9 @@ import {
 interface Movie {
   Title: string;
   imdbID: string;
+  Genre: string;
+  Year: string;
+  imdbRating: string;
 }
 
 const App: React.FC = () => {
@@ -19,13 +22,22 @@ const App: React.FC = () => {
 
   const handleSearch = async () => {
     const baseUrl = 'https://www.omdbapi.com/';
-    const apiKey = '26d161e9'; // Updated API key
-    const queryUrl = `${baseUrl}?apikey=${apiKey}&s=${search}&type=movie&page=1`;
+    const apiKey = '26d161e9';
+    const searchUrl = `${baseUrl}?apikey=${apiKey}&s=${search}&type=movie&page=1`;
 
-    const response = await fetch(queryUrl);
+    const response = await fetch(searchUrl);
     const data = await response.json();
+
     const topTenMovies = data.Search.slice(0, 10);
-    setMovies(topTenMovies);
+    const detailedMoviesPromises = topTenMovies.map(async (movie: any) => {
+      const detailsUrl = `${baseUrl}?apikey=${apiKey}&i=${movie.imdbID}`;
+      const detailsResponse = await fetch(detailsUrl);
+      const movieDetails = await detailsResponse.json();
+      return movieDetails;
+    });
+
+    const detailedMovies = await Promise.all(detailedMoviesPromises);
+    setMovies(detailedMovies);
   };
 
   const handleKeyPress = (event: React.KeyboardEvent) => {
@@ -55,7 +67,7 @@ const App: React.FC = () => {
           <TextField
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            onKeyPress={handleKeyPress} // Added key press event handler
+            onKeyPress={handleKeyPress}
             label="Search for a movie"
             variant="outlined"
             fullWidth
@@ -71,13 +83,16 @@ const App: React.FC = () => {
               Search Results:
             </Typography>
             {movies.map((movie) => (
-              <Box key={movie.imdbID}>
+              <Box key={movie.imdbID} sx={{ marginBottom: 1 }}>
                 <Link
                   href={`https://www.imdb.com/title/${movie.imdbID}/`}
                   target="_blank"
                 >
                   {movie.Title}
                 </Link>
+                <Typography variant="body2" component="span" sx={{ marginLeft: 1 }}>
+                  ({movie.Year}) - {movie.Genre} - IMDb Rating: {movie.imdbRating}
+                </Typography>
               </Box>
             ))}
           </Box>
