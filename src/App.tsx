@@ -44,7 +44,8 @@ const App: React.FC = () => {
 
   const performSearch = async (query: string) => {
     const baseUrl = 'https://www.omdbapi.com/';
-    const apiKey = '26d161e9';
+    const apiKeys = ['26d161e9', '7562593c', '8fdecbb9'];
+    const apiKey = apiKeys[Math.floor(Math.random() * apiKeys.length)];
     const searchUrl = `${baseUrl}?apikey=${apiKey}&s=${query}&type=movie&page=1`;
 
     const response = await fetch(searchUrl);
