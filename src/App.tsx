@@ -143,17 +143,19 @@ const App: React.FC = () => {
             </Typography>
           ) : (
             <Box>
-              <Typography variant="h6" component="div" sx={{ marginTop: 2 }}>
-                Search Results:
-              </Typography>
               <Box
                 sx={{
                   display: 'flex',
-                  justifyContent: 'flex-start',
+                  justifyContent: 'space-between',
                   alignItems: 'center',
+                  width: '100%',
+                  marginTop: 2,
                   marginBottom: 2,
                 }}
               >
+                <Typography variant="h6" component="div">
+                  Search Results:
+                </Typography>
                 <SortBy sort={sort} onSortChange={handleSort} />
               </Box>
               <MovieGrid
