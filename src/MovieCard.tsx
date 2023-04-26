@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Card,
-  CardMedia,
   CardContent,
   Typography,
   Link,
@@ -18,17 +17,23 @@ interface MovieCardProps {
   onToggleFavorite: () => void;
 }
 
+const noPosterAvailable = 'https://via.placeholder.com/300x100?text=No+Poster+Available';
+
 const MovieCard: React.FC<MovieCardProps> = ({
   movie,
   isFavorite,
   onToggleFavorite,
 }) => (
   <Card sx={{ minWidth: 200 }}>
-    <CardMedia
-      component="img"
-      height="200"
-      image={movie.Poster}
-      alt={movie.Title}
+    <Box
+      sx={{
+        width: '100%',
+        height: '250px',
+        backgroundImage: `url(${movie.Poster === 'N/A' ? noPosterAvailable : movie.Poster})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'top',
+        backgroundRepeat: 'no-repeat',
+      }}
     />
     <CardContent>
       <Box
