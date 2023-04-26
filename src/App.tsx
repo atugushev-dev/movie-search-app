@@ -57,8 +57,26 @@ const App: React.FC = () => {
     });
 
     const detailedMovies = await Promise.all(detailedMoviesPromises);
-    setMovies(detailedMovies);
+    const sortedMovies = sortMovies(detailedMovies, sort);
+    setMovies(sortedMovies);
   };
+
+const sortMovies = (movies: Movie[], sortValue: string) => {
+  return [...movies].sort((a, b) => {
+    switch (sortValue) {
+      case 'yearAsc':
+        return parseInt(a.Year) - parseInt(b.Year);
+      case 'yearDesc':
+        return parseInt(b.Year) - parseInt(a.Year);
+      case 'ratingAsc':
+        return parseFloat(a.imdbRating) - parseFloat(b.imdbRating);
+      case 'ratingDesc':
+        return parseFloat(b.imdbRating) - parseFloat(a.imdbRating);
+      default:
+        return 0;
+    }
+  });
+};
 
   const handleSearch = () => {
     window.history.pushState({}, '', `?query=${search}`);
@@ -74,22 +92,7 @@ const App: React.FC = () => {
   const handleSort = (value: string) => {
     setSort(value);
     localStorage.setItem('sort', value);
-
-    const sortedMovies = [...movies].sort((a, b) => {
-      switch (value) {
-        case 'yearAsc':
-          return parseInt(a.Year) - parseInt(b.Year);
-        case 'yearDesc':
-          return parseInt(b.Year) - parseInt(a.Year);
-        case 'ratingAsc':
-          return parseFloat(a.imdbRating) - parseFloat(b.imdbRating);
-        case 'ratingDesc':
-          return parseFloat(b.imdbRating) - parseFloat(a.imdbRating);
-        default:
-          return 0;
-      }
-    });
-
+    const sortedMovies = sortMovies(movies, value);
     setMovies(sortedMovies);
   };
 
