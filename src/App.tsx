@@ -24,6 +24,7 @@ const App: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [movies, setMovies] = useState<Movie[]>([]);
   const [sort, setSort] = useState<string>('');
+  const resultCount = 5;
 
   const handleSearch = async () => {
     const baseUrl = 'https://www.omdbapi.com/';
@@ -33,8 +34,8 @@ const App: React.FC = () => {
     const response = await fetch(searchUrl);
     const data = await response.json();
 
-    const topTenMovies = data.Search.slice(0, 10);
-    const detailedMoviesPromises = topTenMovies.map(async (movie: any) => {
+    const topMovies = data.Search.slice(0, resultCount);
+    const detailedMoviesPromises = topMovies.map(async (movie: any) => {
       const detailsUrl = `${baseUrl}?apikey=${apiKey}&i=${movie.imdbID}`;
       const detailsResponse = await fetch(detailsUrl);
       const movieDetails = await detailsResponse.json();
@@ -108,20 +109,29 @@ const App: React.FC = () => {
             <Typography variant="h6" component="div" sx={{ marginTop: 2 }}>
               Search Results:
             </Typography>
-            <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
-              <InputLabel id="sort-label">Sort by:</InputLabel>
-              <Select
-                labelId="sort-label"
-                value={sort}
-                onChange={handleSort}
-                sx={{ marginLeft: 1 }}
-              >
-                <MenuItem value="">None</MenuItem>
-                <MenuItem value="yearAsc">Year (Ascending)</MenuItem>
-                <MenuItem value="yearDesc">Year (Descending)</MenuItem>
-                <MenuItem value="ratingAsc">Rating (Ascending)</MenuItem>
-                <MenuItem value="ratingDesc">Rating (Descending)</MenuItem>
-              </Select>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-start',
+                alignItems: 'center',
+                marginBottom: 2,
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <InputLabel id="sort-label">Sort by:</InputLabel>
+                <Select
+                  labelId="sort-label"
+                  value={sort}
+                  onChange={handleSort}
+                  sx={{ marginLeft: 1 }}
+                >
+                  <MenuItem value="">None</MenuItem>
+                  <MenuItem value="yearAsc">Year (Ascending)</MenuItem>
+                  <MenuItem value="yearDesc">Year (Descending)</MenuItem>
+                  <MenuItem value="ratingAsc">Rating (Ascending)</MenuItem>
+                  <MenuItem value="ratingDesc">Rating (Descending)</MenuItem>
+                </Select>
+              </Box>
             </Box>
             {movies.map((movie) => (
               <Box key={movie.imdbID} sx={{ marginBottom: 1 }}>
