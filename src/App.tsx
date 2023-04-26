@@ -1,25 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  Container,
-  TextField,
-  Typography,
-  Link,
-  Select,
-  MenuItem,
-  InputLabel,
-  Card,
-  CardMedia,
-  CardContent,
-  Grid,
-  IconButton,
-} from '@mui/material';
-import { SelectChangeEvent } from '@mui/material/Select';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import { Box, Container, Typography } from '@mui/material';
+import MovieSearch from './MovieSearch';
+import SortBy from './SortBy';
+import MovieGrid from './MovieGrid';
 
-interface Movie {
+export interface Movie {
   Title: string;
   imdbID: string;
   Genre: string;
@@ -86,13 +71,12 @@ const App: React.FC = () => {
     }
   };
 
-  const handleSort = (event: SelectChangeEvent<string>) => {
-    const sortValue = event.target.value as string;
-    setSort(sortValue);
-    localStorage.setItem('sort', sortValue);
+  const handleSort = (value: string) => {
+    setSort(value);
+    localStorage.setItem('sort', value);
 
     const sortedMovies = [...movies].sort((a, b) => {
-      switch (sortValue) {
+      switch (value) {
         case 'yearAsc':
           return parseInt(a.Year) - parseInt(b.Year);
         case 'yearDesc':
@@ -125,27 +109,12 @@ const App: React.FC = () => {
           marginTop: 5,
         }}
       >
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            width: '100%',
-          }}
-        >
-          <TextField
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyPress={handleKeyPress}
-            label="Search for a movie"
-            variant="outlined"
-            fullWidth
-            sx={{ marginRight: 1 }}
-          />
-          <Button onClick={handleSearch} variant="contained">
-            GO
-          </Button>
-        </Box>
+        <MovieSearch
+          search={search}
+          onSearchChange={setSearch}
+          onKeyPress={handleKeyPress}
+          onButtonClick={handleSearch}
+        />
         {movies.length > 0 && (
           <Box>
             <Typography variant="h6" component="div" sx={{ marginTop: 2 }}>
@@ -159,65 +128,13 @@ const App: React.FC = () => {
                 marginBottom: 2,
               }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <InputLabel id="sort-label">Sort by:</InputLabel>
-                <Select
-                  labelId="sort-label"
-                  value={sort}
-                  onChange={handleSort}
-                  sx={{ marginLeft: 1 }}
-                >
-                  <MenuItem value="">None</MenuItem>
-                  <MenuItem value="yearAsc">Year (Ascending)</MenuItem>
-                  <MenuItem value="yearDesc">Year (Descending)</MenuItem>
-                  <MenuItem value="ratingAsc">Rating (Ascending)</MenuItem>
-                  <MenuItem value="ratingDesc">Rating (Descending)</MenuItem>
-                </Select>
-              </Box>
+              <SortBy sort={sort} onSortChange={handleSort} />
             </Box>
-            <Grid container spacing={2}>
-              {movies.map((movie) => (
-                <Grid item xs={12} sm={6} md={4} key={movie.imdbID}>
-                  <Card sx={{ minWidth: 200 }}>
-                    <CardMedia
-                      component="img"
-                      height="200"
-                      image={movie.Poster}
-                      alt={movie.Title}
-                    />
-                    <CardContent>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <Link
-                          href={`https://www.imdb.com/title/${movie.imdbID}/`}
-                          target="_blank"
-                        >
-                          {movie.Title}
-                        </Link>
-                        <IconButton
-                          onClick={() => handleToggleFavorite(movie.imdbID)}
-                          color="primary"
-                        >
-                          {favorites[movie.imdbID] ? (
-                            <FavoriteIcon />
-                          ) : (
-                            <FavoriteBorderIcon />
-                          )}
-                        </IconButton>
-                      </Box>
-                      <Typography variant="body2" component="div">
-                        ({movie.Year}) - {movie.Genre} - IMDb Rating: {movie.imdbRating}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
+            <MovieGrid
+              movies={movies}
+              favorites={favorites}
+              onToggleFavorite={handleToggleFavorite}
+            />
           </Box>
         )}
       </Box>
