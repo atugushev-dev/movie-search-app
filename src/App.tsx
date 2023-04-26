@@ -33,19 +33,32 @@ const App: React.FC = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [sort, setSort] = useState<string>('');
   const [favorites, setFavorites] = useState<{ [key: string]: boolean }>({});
-  const resultCount = 5;
+  const resultCount = 6;
 
   useEffect(() => {
     const storedFavorites = localStorage.getItem('favorites');
+    const storedSort = localStorage.getItem('sort');
+
     if (storedFavorites) {
       setFavorites(JSON.parse(storedFavorites));
     }
+
+    if (storedSort) {
+      setSort(storedSort);
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('query');
+    if (query) {
+      setSearch(query);
+      performSearch(query);
+    }
   }, []);
 
-  const handleSearch = async () => {
+  const performSearch = async (query: string) => {
     const baseUrl = 'https://www.omdbapi.com/';
     const apiKey = '26d161e9';
-    const searchUrl = `${baseUrl}?apikey=${apiKey}&s=${search}&type=movie&page=1`;
+    const searchUrl = `${baseUrl}?apikey=${apiKey}&s=${query}&type=movie&page=1`;
 
     const response = await fetch(searchUrl);
     const data = await response.json();
@@ -62,6 +75,11 @@ const App: React.FC = () => {
     setMovies(detailedMovies);
   };
 
+  const handleSearch = () => {
+    window.history.pushState({}, '', `?query=${search}`);
+    performSearch(search);
+  };
+
   const handleKeyPress = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
       handleSearch();
@@ -69,10 +87,12 @@ const App: React.FC = () => {
   };
 
   const handleSort = (event: SelectChangeEvent<string>) => {
-    setSort(event.target.value as string);
+    const sortValue = event.target.value as string;
+    setSort(sortValue);
+    localStorage.setItem('sort', sortValue);
 
     const sortedMovies = [...movies].sort((a, b) => {
-      switch (event.target.value) {
+      switch (sortValue) {
         case 'yearAsc':
           return parseInt(a.Year) - parseInt(b.Year);
         case 'yearDesc':
